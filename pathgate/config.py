@@ -1,7 +1,6 @@
 from pathlib import Path
 import os
 import logging
-from mcp.server import Server
 
 logging.basicConfig(
     level=logging.INFO,
@@ -9,10 +8,6 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
-
-# Create the MCP server
-server = Server("pathgate")
-
 
 # pathgate/config.py
 ALLOWED_PATHS: list[str] = []   # filled in by configure() at startup

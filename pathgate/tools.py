@@ -1,44 +1,35 @@
-from mcp.types import (TextContent, CallToolResult)
-import os
-from pathgate.config import is_path_allowed, server, is_read_only
+from mcp.server import ServerRequestContext
+from mcp.types import CallToolRequestParams, CallToolResult, TextContent
 import logging
+import os
 import json
+from pathgate.config import is_path_allowed, is_read_only
 import shutil
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-@server.call_tool()
-async def call_tool(name: str, arguments: dict) -> CallToolResult:
-    """Handle tool calls"""
+async def call_tool(ctx: ServerRequestContext, params: CallToolRequestParams) -> CallToolResult:
+    handler = HANDLERS.get(params.name)
+    if handler is None:
+        return _error(f"Unknown tool: {params.name}")
     try:
-        if name == "read_file_tool":
-            return await read_file_tool(arguments)
-        elif name == "write_file_tool":
-            return await write_file_tool(arguments)
-        elif name == "list_directory_tool":
-            return await list_directory_tool(arguments)
-        elif name == "create_directory_tool":
-            return await create_directory_tool(arguments)
-        elif name == "delete_file_tool":
-            return await delete_file_tool(arguments)
-        elif name == "delete_directory_tool":
-            return await delete_directory_tool(arguments)
-        elif name == "move_file_tool":
-            return await move_file_tool(arguments)
-        elif name == "copy_file_tool":
-            return await copy_file_tool(arguments)
-        elif name == "search_files_tool":
-            return await search_files_tool(arguments)
-        elif name == "get_file_info_tool":
-            return await get_file_info_tool(arguments)
-        else:
-            raise ValueError(f"Unknown tool: {name}")
+        result = await handler(params.arguments or {})
+    except KeyError as e:
+        return _error(f"Missing required argument: {e.args[0]}")
     except Exception as e:
-        logger.error(f"Error in {name}: {str(e)}")
-        return CallToolResult(
-            content=[TextContent(type="text", text=f"Error: {str(e)}")]
-        )
+        logger.exception("Error in %s", params.name)
+        return _error(str(e))
+
+    # existing handlers return "Error..." text without the error flag
+    text = result.content[0].text if result.content else ""
+    if text.startswith("Error") and not result.is_error:
+        result = result.model_copy(update={"is_error": True})
+    return result
+
+def _error(msg: str) -> CallToolResult:
+    return CallToolResult(content=[TextContent(type="text", text=f"Error: {msg}")], is_error=True)
+
 
 # Tool implementations
 async def read_file_tool(arguments: dict) -> CallToolResult:
@@ -90,8 +81,7 @@ async def write_file_tool(arguments: dict) -> CallToolResult:
     content = arguments["content"]
     encoding = arguments.get("encoding", "utf-8")
 
-    iro = is_read_only()
-    if not iro:
+    if is_read_only():
         return CallToolResult(
             content=[TextContent(type="text", text=f"Error: Write operations are disabled in read-only mode.")]
         )
@@ -187,10 +177,9 @@ async def create_directory_tool(arguments: dict) -> CallToolResult:
     """Create a new directory"""
     path = arguments["path"]
 
-    iro = is_read_only()
-    if not iro:
+    if is_read_only():
         return CallToolResult(
-            content=[TextContent(type="text", text=f"Error: Create operations are disabled in read-only mode.")]
+            content=[TextContent(type="text", text=f"Error: Write operations are disabled in read-only mode.")]
         )
     
     if not is_path_allowed(path):
@@ -217,8 +206,7 @@ async def delete_file_tool(arguments: dict) -> CallToolResult:
     """Delete a file"""
     path = arguments["path"]
 
-    iro = is_read_only()
-    if not iro:
+    if is_read_only():
         return CallToolResult(
             content=[TextContent(type="text", text=f"Error: Delete operations are disabled in read-only mode.")]
         )
@@ -258,8 +246,7 @@ async def delete_directory_tool(arguments: dict) -> CallToolResult:
     path = arguments["path"]
     recursive = arguments.get("recursive", False)
 
-    iro = is_read_only()
-    if not iro:
+    if is_read_only():
         return CallToolResult(
             content=[TextContent(type="text", text=f"Error: Delete operations are disabled in read-only mode.")]
         )
@@ -303,8 +290,7 @@ async def move_file_tool(arguments: dict) -> CallToolResult:
     source = arguments["source"]
     destination = arguments["destination"]
 
-    iro = is_read_only()
-    if not iro:
+    if is_read_only():
         return CallToolResult(
             content=[TextContent(type="text", text=f"Error: Move operations are disabled in read-only mode.")]
         )
@@ -340,8 +326,7 @@ async def copy_file_tool(arguments: dict) -> CallToolResult:
     source = arguments["source"]
     destination = arguments["destination"]
 
-    iro = is_read_only()
-    if not iro:
+    if is_read_only():
         return CallToolResult(
             content=[TextContent(type="text", text=f"Error: Copy operations are disabled in read-only mode.")]
         )
@@ -399,7 +384,7 @@ async def search_files_tool(arguments: dict) -> CallToolResult:
         else:
             matches = list(path_obj.glob(pattern))
         
-        results = [str(match) for match in matches]
+        results = [str(m) for m in matches if is_path_allowed(str(m))]
         
         result = {
             "directory": directory,
@@ -455,3 +440,16 @@ async def get_file_info_tool(arguments: dict) -> CallToolResult:
         return CallToolResult(
             content=[TextContent(type="text", text=f"Error getting file info: {str(e)}")]
         )
+
+HANDLERS = {
+    "read_file_tool": read_file_tool,
+    "write_file_tool": write_file_tool,
+    "list_directory_tool": list_directory_tool,
+    "create_directory_tool": create_directory_tool,
+    "delete_file_tool": delete_file_tool,
+    "delete_directory_tool": delete_directory_tool,
+    "move_file_tool": move_file_tool,
+    "copy_file_tool": copy_file_tool,
+    "search_files_tool": search_files_tool,
+    "get_file_info_tool": get_file_info_tool,
+}

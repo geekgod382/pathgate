@@ -22,32 +22,32 @@ Access is restricted by allow-listed paths. At startup, the server resolves the 
 ## Installation
 
 ```bash
-git clone https://github.com/geekgod382/filesystem-mcp-server.git
-cd filesystem-mcp-server
+git clone https://github.com/geekgod382/pathgate.git
+cd pathgate
 python -m pip install -e .
 ```
 
-This installs the `filesystem-mcp-server` console command from `pyproject.toml`.
+This installs the `pathgate` console command from `pyproject.toml`.
 
 ## Usage
 
 ### Start with allowed directories
 
 ```bash
-filesystem-mcp-server "C:\Users\<username>\Documents" "C:\Users\<username>\Projects"
+pathgate "C:\Users\<username>\Documents" "C:\Users\<username>\Projects"
 ```
 
 ### Read-only mode
 
 ```bash
-filesystem-mcp-server --read-only "C:\Users\<username>\Documents"
+pathgate --read-only "C:\Users\<username>\Documents"
 ```
 
 ### Environment variable alternative
 
 ```bash
 $env:FS_MCP_ALLOWED_PATHS = "C:\Users\<username>\Documents;C:\Users\<username>\Projects"
-filesystem-mcp-server
+pathgate
 ```
 
 On macOS/Linux, use `:` instead of `;` for the path separator.
@@ -75,7 +75,7 @@ Example Claude Desktop configuration:
 {
   "mcpServers": {
     "filesystem": {
-      "command": "filesystem-mcp-server",
+      "command": "pathgate",
       "args": ["C:\\Users\\<username>\\Documents"]
     }
   }
@@ -105,7 +105,7 @@ Create a file at C:\Users\<username>\Documents\todo.txt with the content "Ship r
 ## Project layout
 
 ```text
-filesystem-mcp-server/
+pathgate/
 ├── pathgate/
 │   ├── __init__.py
 │   ├── __main__.py

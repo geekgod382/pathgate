@@ -1,20 +1,37 @@
-from pathgate.config import configure, server
-from mcp.server.stdio import stdio_server
-from pathgate import tools, resources, prompts, tool_schemas
+import argparse
 import asyncio
 import os
-import argparse
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
-server.list_tools()(tool_schemas.list_tools)
-server.call_tool()(tools.call_tool)
-server.list_resources()(resources.list_resources)
-server.read_resource()(resources.read_resource)
-server.list_prompts()(prompts.list_prompts)
-server.get_prompt()(prompts.get_prompt)
+from mcp.server import Server
+from mcp.server.stdio import stdio_server
+
+from pathgate import prompts, resources, tool_schemas, tools
+from pathgate.config import configure
+
+
+def _version() -> str:
+    try:
+        return version("pathgate")
+    except PackageNotFoundError:
+        return "0.0.0"
+
+
+server = Server(
+    "pathgate",
+    version=_version(),
+    on_list_tools=tool_schemas.list_tools,
+    on_call_tool=tools.call_tool,
+    on_list_resources=resources.list_resources,
+    on_read_resource=resources.read_resource,
+    on_list_prompts=prompts.list_prompts,
+    on_get_prompt=prompts.get_prompt,
+)
+
 
 def parse_args(argv=None):
-    p = argparse.ArgumentParser(prog="filesystem-mcp-server")
+    p = argparse.ArgumentParser(prog="pathgate")
     p.add_argument("paths", nargs="*", help="Directories the server may access")
     p.add_argument("--read-only", action="store_true", help="Disable write/delete/move/copy tools")
     args = p.parse_args(argv)
@@ -31,12 +48,17 @@ def parse_args(argv=None):
             p.error(f"not a directory: {x}")
     return paths, args.read_only
 
-async def main():
+
+async def _run():
     async with stdio_server() as (read_stream, write_stream):
         await server.run(read_stream, write_stream, server.create_initialization_options())
 
-if __name__ == "__main__":
+
+def main():
     paths, read_only = parse_args()
     configure(paths, read_only)
-    asyncio.run(main())
+    asyncio.run(_run())
 
+
+if __name__ == "__main__":
+    main()

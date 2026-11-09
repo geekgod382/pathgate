@@ -1,8 +1,7 @@
-from pathgate.config import server
-from mcp.types import Tool, ListToolsResult
+from mcp.server import ServerRequestContext
+from mcp.types import ListToolsResult, PaginatedRequestParams, Tool
 
-@server.list_tools()
-async def list_tools() -> ListToolsResult:
+async def list_tools(ctx: ServerRequestContext, params: PaginatedRequestParams | None) -> ListToolsResult:
     """List available tools"""
     tools = [
         Tool(

@@ -13,7 +13,7 @@ async def test_server():
     # Server parameters
     server_params = StdioServerParameters(
         command="python",
-        args=["C:\\Users\\manan\\filesystem-mcp-server\\server.py"],
+        args=["C:\\Users\\manan\\pathgate\\server.py"],
     )
     
     print("🚀 Starting Pure MCP Filesystem Server test...\n")
