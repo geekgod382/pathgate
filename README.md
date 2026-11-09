@@ -1,4 +1,4 @@
-# Filesystem MCP Server
+# Pathgate
 
 `pathgate` is a Python Model Context Protocol (MCP) server that exposes a controlled filesystem interface to MCP clients such as Claude Desktop, Cursor, VS Code, and inspector tools. The server only permits access to directories that are explicitly allow-listed at startup.
 
