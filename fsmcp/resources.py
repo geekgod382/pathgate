@@ -1,4 +1,4 @@
-from src.config import server, is_path_allowed
+from fsmcp.config import server, is_path_allowed
 from mcp.types import (Resource, ListResourcesResult, ReadResourceResult, TextContent)
 import os
 import json

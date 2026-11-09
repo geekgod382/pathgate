@@ -1,0 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fsmcp"
+version = "0.1.0"
+description = "Filesystem MCP server with allow-listed directories"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = ["mcp>=1.25"]
+
+[project.scripts]
+filesystem-mcp-server = "fsmcp.server:main"

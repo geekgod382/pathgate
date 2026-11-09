@@ -1,4 +1,4 @@
-from src.config import server
+from fsmcp.config import server
 from mcp.types import Tool, ListToolsResult
 
 @server.list_tools()

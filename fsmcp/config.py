@@ -11,10 +11,21 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Create the MCP server
-server = Server("filesystem-server")
+server = Server("fsmcp")
 
 
-ALLOWED_PATHS = [str(Path.home())]
+# fsmcp/config.py
+ALLOWED_PATHS: list[str] = []   # filled in by configure() at startup
+_state = {"read_only": False}
+
+def configure(paths: list[str], read_only: bool) -> None:
+    ALLOWED_PATHS.clear()
+    ALLOWED_PATHS.extend(paths)      # mutate in place so existing imports see it
+    _state["read_only"] = read_only
+
+def is_read_only() -> bool:
+    return _state["read_only"]
+
 
 def is_path_allowed(path):
     abs_path = os.path.realpath(path)  # resolves symlinks too

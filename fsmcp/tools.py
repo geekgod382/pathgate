@@ -1,6 +1,6 @@
 from mcp.types import (TextContent, CallToolResult)
 import os
-from src.config import is_path_allowed, server
+from fsmcp.config import is_path_allowed, server, is_read_only
 import logging
 import json
 import shutil
@@ -89,6 +89,12 @@ async def write_file_tool(arguments: dict) -> CallToolResult:
     path = arguments["path"]
     content = arguments["content"]
     encoding = arguments.get("encoding", "utf-8")
+
+    iro = is_read_only()
+    if not iro:
+        return CallToolResult(
+            content=[TextContent(type="text", text=f"Error: Write operations are disabled in read-only mode.")]
+        )
     
     if not is_path_allowed(path):
         return CallToolResult(
@@ -180,6 +186,12 @@ async def list_directory_tool(arguments: dict) -> CallToolResult:
 async def create_directory_tool(arguments: dict) -> CallToolResult:
     """Create a new directory"""
     path = arguments["path"]
+
+    iro = is_read_only()
+    if not iro:
+        return CallToolResult(
+            content=[TextContent(type="text", text=f"Error: Create operations are disabled in read-only mode.")]
+        )
     
     if not is_path_allowed(path):
         return CallToolResult(
@@ -204,6 +216,12 @@ async def create_directory_tool(arguments: dict) -> CallToolResult:
 async def delete_file_tool(arguments: dict) -> CallToolResult:
     """Delete a file"""
     path = arguments["path"]
+
+    iro = is_read_only()
+    if not iro:
+        return CallToolResult(
+            content=[TextContent(type="text", text=f"Error: Delete operations are disabled in read-only mode.")]
+        )
     
     if not is_path_allowed(path):
         return CallToolResult(
@@ -239,6 +257,12 @@ async def delete_directory_tool(arguments: dict) -> CallToolResult:
     """Delete a directory"""
     path = arguments["path"]
     recursive = arguments.get("recursive", False)
+
+    iro = is_read_only()
+    if not iro:
+        return CallToolResult(
+            content=[TextContent(type="text", text=f"Error: Delete operations are disabled in read-only mode.")]
+        )
     
     if not is_path_allowed(path):
         return CallToolResult(
@@ -278,6 +302,12 @@ async def move_file_tool(arguments: dict) -> CallToolResult:
     """Move or rename a file or directory"""
     source = arguments["source"]
     destination = arguments["destination"]
+
+    iro = is_read_only()
+    if not iro:
+        return CallToolResult(
+            content=[TextContent(type="text", text=f"Error: Move operations are disabled in read-only mode.")]
+        )
     
     if not is_path_allowed(source) or not is_path_allowed(destination):
         return CallToolResult(
@@ -309,6 +339,12 @@ async def copy_file_tool(arguments: dict) -> CallToolResult:
     """Copy a file or directory"""
     source = arguments["source"]
     destination = arguments["destination"]
+
+    iro = is_read_only()
+    if not iro:
+        return CallToolResult(
+            content=[TextContent(type="text", text=f"Error: Copy operations are disabled in read-only mode.")]
+        )
     
     if not is_path_allowed(source) or not is_path_allowed(destination):
         return CallToolResult(
