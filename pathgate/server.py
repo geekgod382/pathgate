@@ -1,6 +1,6 @@
-from fsmcp.config import configure, server
+from pathgate.config import configure, server
 from mcp.server.stdio import stdio_server
-from fsmcp import tools, resources, prompts, tool_schemas
+from pathgate import tools, resources, prompts, tool_schemas
 import asyncio
 import os
 import argparse

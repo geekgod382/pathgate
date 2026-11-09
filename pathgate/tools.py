@@ -1,6 +1,6 @@
 from mcp.types import (TextContent, CallToolResult)
 import os
-from fsmcp.config import is_path_allowed, server, is_read_only
+from pathgate.config import is_path_allowed, server, is_read_only
 import logging
 import json
 import shutil

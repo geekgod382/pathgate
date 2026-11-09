@@ -1,155 +1,133 @@
 # Filesystem MCP Server
 
-A Model Context Protocol (MCP) server that provides comprehensive file system access and operations. This server allows AI assistants to interact with your file system through a standardized interface.
+`pathgate` is a Python Model Context Protocol (MCP) server that exposes a controlled filesystem interface to MCP clients such as Claude Desktop, Cursor, VS Code, and inspector tools. The server only permits access to directories that are explicitly allow-listed at startup.
 
-## Features
+## What it does
 
-### Resources (Read-only access)
-- **file://{path}** - Read file contents
-- **directory://{path}** - List directory contents with metadata
+The server exposes:
 
-### Tools (File Operations)
-- **read_file_tool** - Read file contents with encoding support
-- **write_file_tool** - Create or overwrite files
-- **list_directory_tool** - List directory contents (recursive option)
-- **create_directory_tool** - Create directories with parent creation
-- **delete_file_tool** - Delete files
-- **delete_directory_tool** - Delete directories (recursive option)
-- **move_file_tool** - Move or rename files/directories
-- **copy_file_tool** - Copy files or directories
-- **search_files_tool** - Search for files by pattern (supports wildcards)
-- **get_file_info_tool** - Get detailed file/directory metadata
+- File resources via `file://...`
+- Directory resources via `directory://...`
+- Tools for reading, writing, listing, creating, deleting, moving, copying, searching, and inspecting files/directories
+- Built-in prompts for directory analysis and file discovery
 
-### Prompts
-- **analyze_directory_prompt** - Template for directory analysis
-- **find_and_read_prompt** - Template for finding and reading files
+## Security model
 
-## Security
+Access is restricted by allow-listed paths. At startup, the server resolves the supplied paths and only permits operations within those directories.
 
-By default, the server restricts access to your home directory. You can modify the `ALLOWED_PATHS` list in `server.py` to change this.
+- Paths are checked with `os.path.realpath()` and prefix matching
+- Symlinks are resolved before comparison
+- The server can be run in read-only mode to disable mutating operations
 
-```python
-ALLOWED_PATHS = [str(Path.home())]  # Modify this to add more paths
+## Installation
+
+```bash
+git clone https://github.com/geekgod382/filesystem-mcp-server.git
+cd filesystem-mcp-server
+python -m pip install -e .
 ```
 
-- Access is limited to a configured root directory
-- No access to system paths
-- User must explicitly grant permissions
+This installs the `filesystem-mcp-server` console command from `pyproject.toml`.
 
+## Usage
 
-## Server Versions
+### Start with allowed directories
 
-**server.py** - Pure MCP SDK implementation (currently active)
-- Uses `mcp.server.Server` directly
-- Better compatibility with Claude Desktop
-- Lower-level control
+```bash
+filesystem-mcp-server "C:\Users\<username>\Documents" "C:\Users\<username>\Projects"
+```
 
-### Using with Claude Desktop
+### Read-only mode
 
-To use this server with Claude Desktop, add it to your Claude configuration file.
+```bash
+filesystem-mcp-server --read-only "C:\Users\<username>\Documents"
+```
 
-1. Open your Claude Desktop config file:
-   - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+### Environment variable alternative
 
-2. Add the server configuration:
+```bash
+$env:FS_MCP_ALLOWED_PATHS = "C:\Users\<username>\Documents;C:\Users\<username>\Projects"
+filesystem-mcp-server
+```
+
+On macOS/Linux, use `:` instead of `;` for the path separator.
+
+## Tools
+
+The current implementation exposes these tools:
+
+- `read_file_tool` — read a file and return its content, size, and encoding
+- `write_file_tool` — write content to a file
+- `list_directory_tool` — list directory contents, optionally recursively
+- `create_directory_tool` — create a directory tree if needed
+- `delete_file_tool` — delete a single file
+- `delete_directory_tool` — delete a directory, optionally recursively
+- `move_file_tool` — move or rename a file/directory
+- `copy_file_tool` — copy a file/directory
+- `search_files_tool` — search for files matching a pattern
+- `get_file_info_tool` — return metadata for a file or directory
+
+## MCP client configuration
+
+Example Claude Desktop configuration:
 
 ```json
 {
   "mcpServers": {
     "filesystem": {
-      "command": "python",
-      "args": ["C:\\Users\\<username>\\filesystem-mcp-server\\server.py"]
+      "command": "filesystem-mcp-server",
+      "args": ["C:\\Users\\<username>\\Documents"]
     }
   }
 }
 ```
 
-3. Restart Claude Desktop
+## Example requests
 
-### Using with MCP Inspector
+Once connected, clients can ask:
 
-You can test and debug your server with the MCP Inspector:
-
-```powershell
-npx @modelcontextprotocol/inspector python server.py
+```text
+List the files in C:\Users\<username>\Documents
 ```
 
-## Example Usage
-
-Once connected to an MCP client (like Claude Desktop), you can:
-
-### List files in a directory
-```
-Can you list the files in my Documents folder?
+```text
+Read C:\Users\<username>\Documents\notes.txt
 ```
 
-### Read a file
-```
-Read the contents of C:\Users\<username>\test.txt
-```
-
-### Search for files
-```
-Find all Python files in my projects directory
+```text
+Search for *.py files under C:\Users\<username>\Projects
 ```
 
-### Create and write to a file
-```
-Create a new file called notes.txt with the content "Hello World"
-```
-
-### Get file information
-```
-Get detailed information about myfile.pdf
+```text
+Create a file at C:\Users\<username>\Documents\todo.txt with the content "Ship release"
 ```
 
-## Project Structure
+## Project layout
 
-```
+```text
 filesystem-mcp-server/
-└── src/
-    ├── __init__.py
-    ├── config.py      ← ALLOWED_PATHS + is_path_allowed()
-    ├── tools.py       ← all 10 tool implementations
-    ├── tool_schemas.py ← the Tool(...) schema definitions for list_tools()
-    ├── resources.py   ← list_resources() + read_resource()
-    └── prompts.py     ← list_prompts() + get_prompt()
-├── server.py           # Main MCP server implementation
-├── requirements.txt    # Python dependencies
-├── test_server        # Test file
-└── README.md          # This file
+├── pathgate/
+│   ├── __init__.py
+│   ├── __main__.py
+│   ├── config.py
+│   ├── prompts.py
+│   ├── resources.py
+│   ├── server.py
+│   ├── tool_schemas.py
+│   └── tools.py
+├── tests/
+│   └── test_server.py
+├── pyproject.toml
+├── README.md
+└── LICENSE
 ```
-
-## Extending the Server
-
-You can easily add more tools by following the existing patterns:
-
-```python
-@mcp.tool()
-def your_custom_tool(param: str) -> dict:
-    """Description of your tool"""
-    # Your implementation
-    return {"result": "success"}
-```
-
-## Troubleshooting
-
-### Permission Errors
-If you get permission errors, check that the path is within `ALLOWED_PATHS` in `server.py`.
-
-### Server Not Responding
-Check that the server is running with stdio transport and that your client is properly configured.
 
 ## Requirements
 
-- Python 3.8 or higher
-- Windows (adaptable to Linux/macOS by changing path separators)
-- MCP Python SDK 1.25 or higher
+- Python 3.10+
+- `mcp>=1.25`
 
-## Resources
+## References
 
-- [MCP Documentation](https://modelcontextprotocol.io/)
-- [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk)
-- [FastMCP Documentation](https://modelcontextprotocol.github.io/python-sdk/)
-
-[![MCP Badge](https://lobehub.com/badge/mcp-full/geekgod382-filesystem-mcp-server)](https://lobehub.com/mcp/geekgod382-filesystem-mcp-server)
+- [Model Context Protocol](https://modelcontextprotocol.io/)
+- [Python SDK](https://github.com/modelcontextprotocol/python-sdk)

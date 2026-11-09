@@ -1,4 +1,4 @@
-from fsmcp.config import server
+from pathgate.config import server
 from mcp.types import Tool, ListToolsResult
 
 @server.list_tools()

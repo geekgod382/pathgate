@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "fsmcp"
+name = "pathgate"
 version = "0.1.0"
 description = "Filesystem MCP server with allow-listed directories"
 readme = "README.md"
@@ -12,4 +12,4 @@ license = { text = "MIT" }
 dependencies = ["mcp>=1.25"]
 
 [project.scripts]
-filesystem-mcp-server = "fsmcp.server:main"
+filesystem-mcp-server = "pathgate.server:main"

@@ -11,10 +11,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Create the MCP server
-server = Server("fsmcp")
+server = Server("pathgate")
 
 
-# fsmcp/config.py
+# pathgate/config.py
 ALLOWED_PATHS: list[str] = []   # filled in by configure() at startup
 _state = {"read_only": False}
 
