@@ -1,4 +1,4 @@
-# Pathgate
+# Pathgate 
 
 `pathgate` is a Python Model Context Protocol (MCP) server that exposes a controlled filesystem interface to MCP clients such as Claude Desktop, Cursor, VS Code, and inspector tools. The server only permits access to directories that are explicitly allow-listed at startup.
 
@@ -21,13 +21,20 @@ Access is restricted by allow-listed paths. At startup, the server resolves the 
 
 ## Installation
 
-```bash
-git clone https://github.com/geekgod382/pathgate.git
-cd pathgate
-python -m pip install -e .
+Pathgate package is published on PyPI. To use it, for example with Claude Desktop, add this in the 
+
+```json
+{
+  "mcpServers": {
+    "pathgate": {
+      "command": "uvx",
+      "args": ["pathgate", "C:\\Users\\me\\Documents"]
+    }
+  }
+}
 ```
 
-This installs the `pathgate` console command from `pyproject.toml`.
+This is just an example script
 
 ## Usage
 
@@ -67,20 +74,6 @@ The current implementation exposes these tools:
 - `search_files_tool` — search for files matching a pattern
 - `get_file_info_tool` — return metadata for a file or directory
 
-## MCP client configuration
-
-Example Claude Desktop configuration:
-
-```json
-{
-  "mcpServers": {
-    "filesystem": {
-      "command": "pathgate",
-      "args": ["C:\\Users\\<username>\\Documents"]
-    }
-  }
-}
-```
 
 ## Example requests
 
@@ -125,7 +118,7 @@ pathgate/
 ## Requirements
 
 - Python 3.10+
-- `mcp>=1.25`
+- `mcp>=2`
 
 ## References
 
