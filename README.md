@@ -50,11 +50,11 @@ When no paths are given, it prompts you for them.
 
 ### Options
 
-- `--read-only:` writes the safer variant of the entry.
-- `--dry-run`: shows what it would write and changes nothing.
-- `--yes`: skips the confirmation prompt.
-- `--name`: sets a different entry name (default pathgate).
-- `--config PATH`: I build this mcp server for Claude primarily. Using this option edits a specific file, which also works for other clients that use the same mcpServers shape.
+`--read-only:` writes the safer variant of the entry.
+`--dry-run`: shows what it would write and changes nothing.
+`--yes`: skips the confirmation prompt.
+`--name`: sets a different entry name (default pathgate).
+`--config PATH`: I build this mcp server for Claude primarily. Using this option edits a specific file, which also works for other clients that use the same mcpServers shape.
 
 ### Updating
 
