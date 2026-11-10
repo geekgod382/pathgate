@@ -34,7 +34,27 @@ Pathgate package is published on PyPI. To use it, for example with Claude Deskto
 }
 ```
 
-This is just an example script
+Or, you can use the install command to directly write the config file
+
+```bash
+uvx pathgate install <paths>
+```
+
+paths should have nothing between them
+
+```bash
+uvx pathgate install C:\Users\me\Documents C:\Users\me\Projects
+```
+
+When no paths are given, it prompts you for them.
+
+### Options
+
+`--read-only:` writes the safer variant of the entry.
+`--dry-run`: shows what it would write and changes nothing.
+`--yes`: skips the confirmation prompt.
+`--name`: sets a different entry name (default pathgate).
+`--config PATH`: I build this mcp server for Claude primarily. Using this option edits a specific file, which also works for other clients that use the same mcpServers shape.
 
 ## Usage
 

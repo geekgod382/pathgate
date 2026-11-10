@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import os
+import sys
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
@@ -31,7 +32,10 @@ server = Server(
 
 
 def parse_args(argv=None):
-    p = argparse.ArgumentParser(prog="pathgate")
+    p = argparse.ArgumentParser(
+        prog="pathgate",
+        epilog="To add Pathgate to Claude Desktop automatically: pathgate install <folders>",
+    )
     p.add_argument("paths", nargs="*", help="Directories the server may access")
     p.add_argument("--read-only", action="store_true", help="Disable write/delete/move/copy tools")
     args = p.parse_args(argv)
@@ -55,6 +59,13 @@ async def _run():
 
 
 def main():
+    # `pathgate install ...` edits the Claude Desktop config instead of
+    # starting the server. (A folder literally named "install" can still be
+    # passed as ./install.)
+    if sys.argv[1:2] == ["install"]:
+        from pathgate.install import main as install_main
+        raise SystemExit(install_main(sys.argv[2:]))
+
     paths, read_only = parse_args()
     configure(paths, read_only)
     asyncio.run(_run())

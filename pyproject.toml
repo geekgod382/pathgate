@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pathgate"
-version = "0.2.0"
+version = "0.2.2"
 description = "Filesystem MCP server with allow-listed directories"
 readme = "README.md"
 requires-python = ">=3.10"
