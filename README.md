@@ -28,7 +28,7 @@ Pathgate package is published on PyPI. To use it, for example with Claude Deskto
   "mcpServers": {
     "pathgate": {
       "command": "uvx",
-      "args": ["pathgate", "C:\\Users\\me\\Documents"]
+      "args": ["pathgate@latest", "C:\\Users\\me\\Documents"]
     }
   }
 }
@@ -56,25 +56,29 @@ When no paths are given, it prompts you for them.
 `--name`: sets a different entry name (default pathgate).
 `--config PATH`: I build this mcp server for Claude primarily. Using this option edits a specific file, which also works for other clients that use the same mcpServers shape.
 
+### Updating
+
+You don't need to manually update it. The command does that for you.
+
 ## Usage
 
 ### Start with allowed directories
 
 ```bash
-pathgate "C:\Users\<username>\Documents" "C:\Users\<username>\Projects"
+uvx pathgate "C:\Users\<username>\Documents" "C:\Users\<username>\Projects"
 ```
 
 ### Read-only mode
 
 ```bash
-pathgate --read-only "C:\Users\<username>\Documents"
+uvx pathgate --read-only "C:\Users\<username>\Documents"
 ```
 
 ### Environment variable alternative
 
 ```bash
 $env:FS_MCP_ALLOWED_PATHS = "C:\Users\<username>\Documents;C:\Users\<username>\Projects"
-pathgate
+uvx pathgate
 ```
 
 On macOS/Linux, use `:` instead of `;` for the path separator.

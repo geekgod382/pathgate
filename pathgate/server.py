@@ -38,6 +38,7 @@ def parse_args(argv=None):
     )
     p.add_argument("paths", nargs="*", help="Directories the server may access")
     p.add_argument("--read-only", action="store_true", help="Disable write/delete/move/copy tools")
+    p.add_argument("--version", action="version", version=f"pathgate {_version()}")
     args = p.parse_args(argv)
 
     env_paths = [x for x in os.environ.get("FS_MCP_ALLOWED_PATHS", "").split(os.pathsep) if x]

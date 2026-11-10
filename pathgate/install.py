@@ -80,15 +80,19 @@ def resolve_config_path(explicit: str | None) -> Path:
 # --------------------------------------------------------------------------
 
 def build_server_entry(paths: list[str], read_only: bool) -> dict:
-    """The `mcpServers` entry that launches Pathgate."""
+    """The `mcpServers` entry that launches Pathgate.
+
+    `pathgate@latest` makes uv check PyPI on every launch, so users always
+    run the newest release without doing anything.
+    """
     uvx = shutil.which("uvx")
     uv = shutil.which("uv")
     if uvx:
-        command, args = uvx, ["pathgate"]
+        command, args = uvx, ["pathgate@latest"]
     elif uv:
-        command, args = uv, ["tool", "run", "pathgate"]
+        command, args = uv, ["tool", "run", "pathgate@latest"]
     else:
-        command, args = sys.executable, ["-m", "pathgate"]
+        command, args = sys.executable, ["-m", "pathgate"]  # no uv: can't auto-update
     args = args + paths
     if read_only:
         args.append("--read-only")
