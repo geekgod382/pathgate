@@ -1,0 +1,38 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.geekgod382/pathgate",
+  "description": "An MCP server that provides controlled filesystem access to MCP clients like Claude Desktop",
+  "repository": {
+    "url": "https://github.com/geekgod382/pathgate",
+    "source": "github",
+    "id": "1124085768"
+  },
+  "version": "0.2.5",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "pathgate",
+      "version": "0.2.5",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "valueHint": "allowed_folder",
+          "description": "Folder the server may access. Pass one or more.",
+          "isRequired": true,
+          "isRepeated": true
+        },
+        {
+          "type": "named",
+          "name": "--read-only",
+          "description": "Disable write, delete, move and copy tools.",
+          "isRequired": false,
+          "format": "boolean"
+        }
+      ]
+    }
+  ]
+}
