@@ -151,3 +151,5 @@ pathgate/
 
 - [Model Context Protocol](https://modelcontextprotocol.io/)
 - [Python SDK](https://github.com/modelcontextprotocol/python-sdk)
+
+[![geekgod382/pathgate MCP server](https://glama.ai/mcp/servers/geekgod382/pathgate/badges/score.svg)](https://glama.ai/mcp/servers/geekgod382/pathgate)
